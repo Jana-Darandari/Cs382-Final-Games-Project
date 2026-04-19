@@ -1,0 +1,66 @@
+/* style.css - Fully Fixed */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #5a738e;
+    
+    /* Elegant Background: Soft white fade + your real pattern image */
+    background: linear-gradient(rgba(247, 251, 255, 0.88), rgba(247, 251, 255, 0.88)), url('Board Game Night.jpg');
+    background-size: 350px; 
+    background-attachment: fixed;
+}
+
+.header-title { font-size: 2.5rem; margin-bottom: 5px; color: #8fa8c8; text-align: center; font-weight: bold; }
+.subtitle { margin-bottom: 30px; color: #a1b8d4; font-size: 1.1rem; text-align: center; text-decoration: none; font-weight: bold; }
+
+/* Dashboard UI */
+.login-bar {
+    background: #ffffff; padding: 15px 30px; border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.04); margin-bottom: 20px;
+    display: flex; gap: 15px; align-items: center;
+}
+.login-input {
+    padding: 10px 15px; border: 2px solid #e0ebf5; border-radius: 20px; outline: none;
+    color: #5a738e; font-weight: bold; font-family: inherit;
+}
+.login-input:focus { border-color: #a1c4fd; }
+
+#active-session { margin-bottom: 20px; text-align: center; }
+#welcome-msg { font-size: 1.2rem; font-weight: bold; color: #8fa8c8; }
+
+/* Game Cards */
+.hub-grid { display: grid; grid-template-columns: repeat(3, 250px); gap: 25px; }
+.game-card {
+    background: #ffffff; border-radius: 30px; padding: 30px 20px; text-align: center;
+    text-decoration: none; box-shadow: 0 10px 20px rgba(0,0,0,0.04); transition: transform 0.2s;
+    display: flex; flex-direction: column; align-items: center;
+}
+.game-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(161, 196, 253, 0.2); }
+.game-icon { font-size: 4rem; margin-bottom: 15px; }
+.game-title { font-size: 1.4rem; font-weight: bold; color: #8fa8c8; }
+
+/* Leaderboard Table */
+.leaderboard-container {
+    margin-top: 40px; width: 600px; background: #ffffff; border-radius: 30px;
+    padding: 20px 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+.leaderboard-title { font-size: 1.8rem; color: #ffb8b8; margin-bottom: 15px; text-align: center; font-weight: bold; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0ebf5; }
+th { color: #a1c4fd; font-size: 1.1rem; }
+td { font-weight: bold; }
+
+/* Reusable Button */
+.btn {
+    padding: 12px 35px; font-size: 1.1rem; font-weight: bold;
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    border: none; border-radius: 50px; color: #ffffff; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(161, 196, 253, 0.4);
+    transition: transform 0.1s;
+}
+.btn:active { transform: scale(0.95); }

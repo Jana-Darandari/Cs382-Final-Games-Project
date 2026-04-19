@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paper Games Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header-title">Paper Games Hub</div>
+    
+    <div class="login-bar" id="login-form">
+        <input type="text" id="p1" class="login-input" placeholder="Player 1 Name">
+        <input type="text" id="p2" class="login-input" placeholder="Player 2 Name">
+        <button class="btn" id="login-btn" style="margin-top:0;">Set Players</button>
+    </div>
+
+    <div id="active-session" style="display:none;">
+        <div id="welcome-msg"></div>
+        <button class="btn" id="logout-btn" style="background: linear-gradient(135deg, #ffb8b8, #ffdfdf); margin-top:15px; padding: 8px 25px; box-shadow: 0 4px 10px rgba(255, 184, 184, 0.4);">Change Players</button>
+    </div>
+
+    <div class="hub-grid">
+        <a href="Tic-Tac-Toe.html" class="game-card">
+            <span class="game-icon">❌</span>
+            <div class="game-title">Tic-Tac-Toe</div>
+        </a>
+        <a href="Bubble-Territory.html" class="game-card">
+            <span class="game-icon">🔳</span>
+            <div class="game-title">Bubble Territory</div>
+        </a>
+        <a href="Bubble-Drop.html" class="game-card">
+            <span class="game-icon">🔵</span>
+            <div class="game-title">Bubble Drop</div>
+        </a>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="leaderboard-title">🏆 All-Time Top Players</div>
+        <table>
+            <thead><tr><th>Rank</th><th>Player</th><th>Wins</th></tr></thead>
+            <tbody id="leader-table"></tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // 1. Unbreakable Login
+            $('#login-btn').click(function() {
+                let p1 = $('#p1').val().trim(); 
+                let p2 = $('#p2').val().trim();
+                
+                if(p1 === "" || p2 === "") {
+                    alert("Please enter both player names!");
+                    return;
+                }
+                
+                // Save to browser immediately
+                localStorage.setItem('p1Name', p1); 
+                localStorage.setItem('p2Name', p2);
+                
+                // Send to DB and reload page
+                $.post('Login.php', { action: 'login', p1: p1, p2: p2 })
+                 .always(function() {
+                    location.reload();
+                 });
+            });
+
+            // 2. Unbreakable Logout
+            $('#logout-btn').click(function() {
+                localStorage.removeItem('p1Name');
+                localStorage.removeItem('p2Name');
+                
+                $.post('Logout.php', { action: 'logout' })
+                 .always(function() {
+                    location.reload(); 
+                 });
+            });
+
+            // 3. Load Leaderboard (FIXED with 'json' tag)
+            function loadBoard() {
+                $.get('Score.php', { action: 'get_leaderboard' }, function(data) {
+                    let html = '';
+                    $.each(data, function(i, p) { 
+                        html += `<tr><td>#${i+1}</td><td>${p.username}</td><td>${p.wins}</td></tr>`; 
+                    });
+                    $('#leader-table').html(html || '<tr><td colspan="3" style="text-align:center;">No wins yet! Play a game to get on the board.</td></tr>');
+                }, 'json'); 
+            }
+
+            // 4. Check if players are already logged in
+            if(localStorage.getItem('p1Name') && localStorage.getItem('p2Name')) {
+                $('#login-form').hide();
+                $('#active-session').show();
+                $('#welcome-msg').text("Currently Playing: " + localStorage.getItem('p1Name') + " vs " + localStorage.getItem('p2Name'));
+            }
+
+            // Initialize leaderboard on page load
+            loadBoard();
+        });
+    </script>
+</body>
+</html>

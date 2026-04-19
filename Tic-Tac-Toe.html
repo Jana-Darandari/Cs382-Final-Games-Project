@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; background: rgba(224, 235, 245, 0.8); padding: 15px; border-radius: 20px; }
+        .cell { background: white; width: 100px; height: 100px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem; cursor: pointer; }
+        .cell.x { color: #a1c4fd; } .cell.o { color: #ffb8b8; }
+        #status { margin-top: 20px; font-size: 1.5rem; font-weight: bold; height: 35px; }
+    </style>
+</head>
+<body>
+    <div class="header-title">Tic-Tac-Toe</div>
+    <a href="index.html" class="subtitle">⬅ Back</a>
+    
+    <div class="board" id="game-board">
+        <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+        <div class="cell" data-i="3"></div><div class="cell" data-i="4"></div><div class="cell" data-i="5"></div>
+        <div class="cell" data-i="6"></div><div class="cell" data-i="7"></div><div class="cell" data-i="8"></div>
+    </div>
+    <div id="status"></div>
+    <button class="btn" onclick="init()" style="margin-top:20px;">Play Again</button>
+
+    <script>
+        let p1 = localStorage.getItem('p1Name') || "P1", p2 = localStorage.getItem('p2Name') || "P2";
+        let turn, active, data;
+
+        // Simplified Reset Function
+        function init() {
+            turn = "X"; active = true; data = Array(9).fill("");
+            $('.cell').text("").removeClass("x o");
+            $('#status').text(p1 + "'s Turn (X)").css("color", "#a1c4fd");
+        }
+
+        $('.cell').click(function() {
+            let i = $(this).data('i');
+            if(data[i] || !active) return;
+            data[i] = turn;
+            $(this).text(turn).addClass(turn.toLowerCase());
+            
+            // Standard Winning Lines
+            if([[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(l => data[l[0]] && data[l[0]] == data[l[1]] && data[l[0]] == data[l[2]])) {
+                active = false; 
+                let winnerName = (turn=="X" ? p1 : p2);
+                $('#status').text(winnerName + " Wins!").css("color", turn=="X"?"#a1c4fd":"#ffb8b8");
+                
+                // standard browser alert
+                setTimeout(() => { alert(winnerName + " Wins!"); }, 100); 
+                
+                // AJAX save win
+                $.post('Score.php', { action: 'save_win', winner: winnerName }); 
+            } else if(!data.includes("")) {
+                $('#status').text("Draw!"); active = false;
+            } else {
+                turn = (turn == "X" ? "O" : "X");
+                $('#status').text((turn=="X"?p1:p2) + "'s Turn").css("color", turn=="X"?"#a1c4fd":"#ffb8b8");
+            }
+        });
+        
+        init();
+    </script>
+</body>
+</html>

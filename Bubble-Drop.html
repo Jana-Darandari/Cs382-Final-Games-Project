@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bubble Drop</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .board { display: grid; grid-template-columns: repeat(7, 60px); gap: 8px; background: rgba(224, 235, 245, 0.8); padding: 15px; border-radius: 20px; }
+        .cell { background: white; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; }
+        .cell.p1 { background: #a1c4fd; } .cell.p2 { background: #ffb8b8; }
+        #status { margin-top: 25px; font-size: 1.5rem; font-weight: bold; height: 35px; }
+    </style>
+</head>
+<body>
+    <div class="header-title">Bubble Drop</div><a href="index.html" class="subtitle">⬅ Back</a>
+    <div class="board" id="board"></div>
+    <div id="status"></div>
+    <button class="btn" onclick="init()" style="margin-top:20px;">Play Again</button>
+
+    <script>
+        let p1 = localStorage.getItem('p1Name') || "P1", p2 = localStorage.getItem('p2Name') || "P2";
+        let turn, active, data;
+
+        // Simplified Reset Function
+        function init() {
+            $('#board').empty(); turn = 1; active = true; 
+            data = Array(6).fill().map(()=>Array(7).fill(0));
+            $('#status').text(p1 + "'s Turn").css("color", "#a1c4fd");
+            
+            // Build the grid UI
+            for(let r=0;r<6;r++) for(let c=0;c<7;c++) $('#board').append($(`<div class="cell" data-c="${c}" id="d-${r}-${c}"></div>`).click(function(){
+                if(!active) return;
+                let c = $(this).data('c');
+                
+                // Simple gravity loop
+                for(let r=5;r>=0;r--) if(data[r][c]==0){
+                    data[r][c]=turn; $('#d-'+r+'-'+c).addClass('p'+turn);
+                    
+                    // Simple win check function
+                    if(check(r, c)){ 
+                        active=false; 
+                        let winner = turn==1?p1:p2;
+                        $('#status').text(winner+" Wins!");
+                        
+                        // standard browser alert
+                        setTimeout(() => { alert(winner + " Wins!"); }, 100); 
+                        
+                        // AJAX save win
+                        $.post('Score.php',{action:'save_win', winner:winner});
+                    }
+                    else { turn=(turn==1?2:1); $('#status').text((turn==1?p1:p2)+"'s Turn").css("color", turn==1?"#a1c4fd":"#ffb8b8"); }
+                    return;
+                }
+            }));
+        }
+
+        // Simplified directions check
+        function check(r,c){
+            return [[0,1],[1,0],[1,1],[1,-1]].some(([dr,dc]) => {
+                let count = 0;
+                for(let i=-3;i<=3;i++){
+                    let nr=r+i*dr, nc=c+i*dc;
+                    if(nr>=0 && nr<6 && nc>=0 && nc<7 && data[nr][nc]==turn) { if(++count==4) return true; } else count=0;
+                }
+            });
+        }
+        init();
+    </script>
+</body>
+</html>

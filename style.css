@@ -1,4 +1,4 @@
-/* style.css - Fully Fixed */
+/* style.css - Fully Fixed with GIF Background */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
@@ -9,9 +9,10 @@ body {
     margin: 0;
     color: #5a738e;
     
-    /* Elegant Background: Soft white fade + your real pattern image */
-    background: linear-gradient(rgba(247, 251, 255, 0.88), rgba(247, 251, 255, 0.88)), url('Board Game Night.jpg');
-    background-size: 350px; 
+    /* Updated Background: Soft white fade + Animal Crossing GIF */
+    background: linear-gradient(rgba(247, 251, 255, 0.6), rgba(247, 251, 255, 0.6)), url('b.gif');
+    background-size: cover; 
+    background-position: center;
     background-attachment: fixed;
 }
 

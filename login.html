@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Paper Games Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header-title" style="margin-bottom: 20px;">Paper Games Hub</div>
+    
+    <div class="auth-box" id="main-auth-box">
+        <h2 style="color: #8fa8c8; margin-top: 0; margin-bottom: 10px;">Login</h2>
+        <input type="text" id="username" class="auth-input" placeholder="Username">
+        <input type="password" id="password" class="auth-input" placeholder="Password">
+        <button class="btn auth-btn" id="login-system-btn">Login</button>
+        
+        <div style="width: 100%; height: 2px; background: #e0ebf5; margin: 5px 0;"></div>
+        <p style="margin: 0; font-size: 0.9rem; color: #a1b8d4; font-weight: bold;">Don't have an account?</p>
+        <button class="btn auth-btn" id="open-signup" style="background: linear-gradient(135deg, #ffb8b8, #ffdfdf); box-shadow: 0 4px 10px rgba(255, 184, 184, 0.4);">Create Account</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            if(localStorage.getItem('systemLoggedIn') === 'true') {
+                window.location.href = 'index.html';
+            }
+
+            $('#open-signup').click(function(e) {
+                e.preventDefault();
+                window.location.href = 'register.html';
+            });
+
+            $('#login-system-btn').click(function() {
+                let user = $('#username').val().trim();
+                let pass = $('#password').val().trim();
+                
+                if(user === "" || pass === "") {
+                    alert("Please enter both username and password!");
+                    return;
+                }
+
+                $.post('Login.php', { action: 'user_login', username: user, password: pass }, function(response) {
+                    if (response.status === 'success') {
+                        localStorage.setItem('systemLoggedIn', 'true');
+                        localStorage.setItem('systemUser', user);
+                        
+                        // Removed DOB here
+                        localStorage.setItem('user_' + user, JSON.stringify({
+                            email: response.email
+                        }));
+
+                        window.location.href = 'index.html';
+                    } else {
+                        alert(response.message); 
+                    }
+                }, 'json').fail(function(xhr) {
+                    console.error("Server Error:", xhr.responseText);
+                    alert("System Error: Could not reach the server.\nResponse: " + xhr.responseText);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

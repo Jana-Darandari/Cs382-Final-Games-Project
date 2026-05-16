@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - Paper Games Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header-title">Player Profile</div>
+    <a href="index.html" class="subtitle">⬅ Back to Hub</a>
+
+    <div class="dashboard-container">
+        <h2 style="color: #a1c4fd; margin-top: 0; text-align: center; margin-bottom: 40px; font-size: 2rem;">Profile Information</h2>
+        
+        <div class="info-group">
+            <div class="info-label">Username</div>
+            <div class="info-value" id="dash-username">-</div>
+        </div>
+        <div class="info-group">
+            <div class="info-label">Email Address</div>
+            <div class="info-value" id="dash-email">-</div>
+        </div>
+    </div>
+
+    <script>
+        // Security check: bounce back to login if not logged in
+        if(localStorage.getItem('systemLoggedIn') !== 'true') { 
+            window.location.href = 'login.html'; 
+        }
+
+        $(document).ready(function() {
+            // Load Username
+            let currentUser = localStorage.getItem('systemUser');
+            $('#dash-username').text(currentUser);
+
+            // Load Email
+            let userData = localStorage.getItem('user_' + currentUser);
+            if (userData) {
+                userData = JSON.parse(userData);
+                $('#dash-email').text(userData.email || 'Not Provided');
+            } else {
+                $('#dash-email').text('No email linked');
+            }
+        });
+    </script>
+</body>
+</html>

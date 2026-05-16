@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account - Paper Games Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
+    
+    <div class="header-title" style="margin-bottom: 20px;">Create Account</div>
+    
+    <div class="login-bar" style="display: flex; flex-direction: column; width: 350px; padding: 30px;">
+        <input type="text" id="reg-username" class="login-input" placeholder="Username" style="margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+        
+        <input type="email" id="reg-email" class="login-input" placeholder="Gmail Address (@gmail.com)" style="margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+        
+        <input type="password" id="reg-password" class="login-input" placeholder="Password" style="margin-bottom: 25px; width: 100%; box-sizing: border-box;">
+        
+        <button class="btn" id="register-btn" style="width: 100%; margin: 0;">Register</button>
+        
+        <div style="margin-top: 15px; text-align: center; color: #5a738e;">
+            Already have an account? <a href="login.html" style="color: #a1c4fd; text-decoration: none; font-weight: bold;">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#register-btn').click(function(e) {
+                e.preventDefault(); 
+                
+                let username = ($('#reg-username').val() || "").trim();
+                let email = ($('#reg-email').val() || "").trim();
+                let password = $('#reg-password').val() || "";
+
+                if (!username || !email || !password) {
+                    alert("Please fill in all the required fields!");
+                    return;
+                }
+
+                let userRegex = /^[a-zA-Z0-9_]{3,15}$/;
+                if (!userRegex.test(username)) {
+                    alert("Username must be 3-15 characters long and can only contain letters, numbers, and underscores.");
+                    return;
+                }
+
+                let emailRegex = /^[^\s@]+@gmail\.com$/i;
+                if (!emailRegex.test(email)) {
+                    alert("Registration is restricted. You must use a valid @gmail.com email address.");
+                    return;
+                }
+
+                if (password.length < 8) {
+                    alert("Password must be at least 8 characters long.");
+                    return;
+                }
+
+                let btn = $(this);
+                btn.text('Please wait...').css('opacity', '0.7').prop('disabled', true);
+
+                $.post('Register.php', { action: 'register', username: username, email: email, password: password }, function(data) {
+                    if (data.status === "success") {
+                        alert("Account created successfully! Logging you in automatically.");
+                        localStorage.setItem('systemLoggedIn', 'true');
+                        localStorage.setItem('systemUser', username);
+                        
+                        localStorage.setItem('user_' + username, JSON.stringify({
+                            email: email
+                        }));
+                        
+                        window.location.href = 'index.html';
+                    } else {
+                        alert("Registration Failed: " + data.message);
+                        btn.text('Register').css('opacity', '1').prop('disabled', false);
+                    }
+                }, 'json').fail(function(xhr) {
+                    console.error("Server Error:", xhr.responseText);
+                    alert("System Error: The server returned an invalid response. Please check database connection.\nResponse: " + xhr.responseText);
+                    btn.text('Register').css('opacity', '1').prop('disabled', false);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

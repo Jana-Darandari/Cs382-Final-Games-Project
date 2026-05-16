@@ -5,22 +5,29 @@
     <title>Paper Games Hub</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.js"></script>
 </head>
 <body>
     <div class="header-title">Paper Games Hub</div>
     
-    <div class="login-bar" id="login-form">
-        <input type="text" id="p1" class="login-input" placeholder="Player 1 Name">
-        <input type="text" id="p2" class="login-input" placeholder="Player 2 Name">
-        <button class="btn" id="login-btn" style="margin-top:0;">Set Players</button>
+    <div class="login-bar" id="login-form" style="display:none;">
+        <div id="user-greeting" style="font-size: 1.2rem; font-weight: bold; color: #5a738e; margin-right: 15px;"></div>
+        <input type="text" id="opponent-name" list="players-list" class="login-input" placeholder="Opponent Username">
+        <datalist id="players-list"></datalist>
+        <button class="btn" id="find-match-btn" style="margin-top:0;">Start Game</button>
+        
+        <button class="btn" onclick="window.location.href='profile.html'" style="margin-top:0; background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color: #fff; box-shadow: 0 4px 10px rgba(161, 196, 253, 0.4);">Profile</button>
+        
+        <button class="btn" id="sys-logout-btn" style="margin-top:0; background: linear-gradient(135deg, #ffb8b8, #ffdfdf); color: #fff; box-shadow: 0 4px 10px rgba(255, 184, 184, 0.4);">Logout</button>
     </div>
 
     <div id="active-session" style="display:none;">
-        <div id="welcome-msg"></div>
-        <button class="btn" id="logout-btn" style="background: linear-gradient(135deg, #ffb8b8, #ffdfdf); margin-top:15px; padding: 8px 25px; box-shadow: 0 4px 10px rgba(255, 184, 184, 0.4);">Change Players</button>
+        <div id="welcome-msg" style="font-size: 1.4rem;"></div>
+        <div id="match-status" style="color: #a1b8d4; margin-top: 5px; font-weight: bold;">Choose a game below to play!</div>
+        <button class="btn" id="leave-match-btn" style="background: linear-gradient(135deg, #ffb8b8, #ffdfdf); margin-top:15px; padding: 8px 25px; box-shadow: 0 4px 10px rgba(255, 184, 184, 0.4);">Leave Match</button>
     </div>
 
-    <div class="hub-grid">
+    <div class="hub-grid" style="display:none;">
         <a href="Tic-Tac-Toe.html" class="game-card">
             <span class="game-icon">❌</span>
             <div class="game-title">Tic-Tac-Toe</div>
@@ -35,7 +42,7 @@
         </a>
     </div>
 
-    <div class="leaderboard-container">
+    <div class="leaderboard-container" style="display:none;">
         <div class="leaderboard-title">🏆 All-Time Top Players</div>
         <table>
             <thead><tr><th>Rank</th><th>Player</th><th>Wins</th></tr></thead>
@@ -43,31 +50,72 @@
         </table>
     </div>
 
+    <div class="chart-section" style="display:none;">
+        <div class="chart-legend">
+            <div class="legend-item custom-toggle" data-index="0" style="cursor: pointer;">
+                <div class="legend-color" style="background: #a1c4fd;"></div>
+                <span id="legend-ttt">Tic-Tac-Toe</span>
+            </div>
+            <div class="legend-item custom-toggle" data-index="1" style="cursor: pointer;">
+                <div class="legend-color" style="background: #ffb8b8;"></div>
+                <span id="legend-bt">Bubble Territory</span>
+            </div>
+            <div class="legend-item custom-toggle" data-index="2" style="cursor: pointer;">
+                <div class="legend-color" style="background: #c2e9fb;"></div>
+                <span id="legend-bd">Bubble Drop</span>
+            </div>
+        </div>
+        <div class="pie-chart-container">
+            <canvas id="gamesPieChart"></canvas>
+        </div>
+    </div>
+
     <script>
+        if(localStorage.getItem('systemLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
         $(document).ready(function() {
-            // 1. Unbreakable Login
-            $('#login-btn').click(function() {
-                let p1 = $('#p1').val().trim(); 
-                let p2 = $('#p2').val().trim();
-                
-                if(p1 === "" || p2 === "") {
-                    alert("Please enter both player names!");
-                    return;
-                }
-                
-                // Save to browser immediately
-                localStorage.setItem('p1Name', p1); 
-                localStorage.setItem('p2Name', p2);
-                
-                // Send to DB and reload page
-                $.post('Login.php', { action: 'login', p1: p1, p2: p2 })
-                 .always(function() {
-                    location.reload();
-                 });
+            
+            $('#sys-logout-btn').click(function() {
+                localStorage.removeItem('systemLoggedIn');
+                localStorage.removeItem('systemUser');
+                window.location.href = 'login.html';
             });
 
-            // 2. Unbreakable Logout
-            $('#logout-btn').click(function() {
+            // 1. Start Game with Specific Opponent
+            $('#find-match-btn').click(function() {
+                let opponent = $('#opponent-name').val().trim();
+                if (opponent === "") {
+                    alert("Please enter the opponent's username!");
+                    return;
+                }
+
+                let btn = $(this);
+                btn.text('Connecting... 🔍').css('opacity', '0.7').prop('disabled', true);
+                
+                // Simulation of a delay to connect to the player
+                setTimeout(function() {
+                    let p1 = localStorage.getItem('systemUser') || 'Player 1';
+                    let p2 = opponent;
+                    
+                    $.post('Login.php', { action: 'login', p1: p1, p2: p2 }, function(data) {
+                        if (data.status === "error") {
+                            
+                            alert(data.message);
+                            btn.text('Start Game').css('opacity', '1').prop('disabled', false);
+                        } else {
+                            
+                            localStorage.setItem('p1Name', p1); 
+                            localStorage.setItem('p2Name', p2);
+                            location.reload();
+                        }
+                     });
+                }, 1500);
+            });
+
+            // 2. Leave Current Match
+            $('#leave-match-btn').click(function() {
                 localStorage.removeItem('p1Name');
                 localStorage.removeItem('p2Name');
                 
@@ -77,26 +125,121 @@
                  });
             });
 
-            // 3. Load Leaderboard (FIXED with 'json' tag)
+            $('.game-card').click(function(e) {
+                if (!localStorage.getItem('p1Name') || !localStorage.getItem('p2Name')) {
+                    e.preventDefault();
+                    alert("Please enter an opponent username and click 'Start Game' first!");
+                }
+            });
+
+            // 3. Load Leaderboard 
             function loadBoard() {
                 $.get('Score.php', { action: 'get_leaderboard' }, function(data) {
                     let html = '';
-                    $.each(data, function(i, p) { 
-                        html += `<tr><td>#${i+1}</td><td>${p.username}</td><td>${p.wins}</td></tr>`; 
+                    $.each(data, function(i, p) {
+                        let gamesDetails = Object.entries(p.gameWins || {})
+                            .map(([game, wins]) => `${game}: ${wins}`)
+                            .join(' | ');
+                        let detailsHtml = gamesDetails ? `<br><small style="color: #a1b8d4; font-size: 0.85em;">🎮 ${gamesDetails}</small>` : '';
+                        html += `<tr><td>#${i+1}</td><td>${p.username}${detailsHtml}</td><td>${p.wins}</td></tr>`; 
                     });
                     $('#leader-table').html(html || '<tr><td colspan="3" style="text-align:center;">No wins yet! Play a game to get on the board.</td></tr>');
                 }, 'json'); 
             }
 
-            // 4. Check if players are already logged in
+            // 4. Initialize UI
+            $('.hub-grid, .leaderboard-container, .chart-section').show();
+            
             if(localStorage.getItem('p1Name') && localStorage.getItem('p2Name')) {
                 $('#login-form').hide();
                 $('#active-session').show();
-                $('#welcome-msg').text("Currently Playing: " + localStorage.getItem('p1Name') + " vs " + localStorage.getItem('p2Name'));
+                $('#welcome-msg').html("⚔️ Match Found: <span style='color:#a1c4fd'>" + localStorage.getItem('p1Name') + "</span> vs <span style='color:#ffb8b8'>" + localStorage.getItem('p2Name') + "</span>");
+            } else {
+                $('#login-form').show();
+                let currentUser = localStorage.getItem('systemUser') || 'Player';
+                $('#user-greeting').text('Welcome, ' + currentUser + '!');
             }
 
             // Initialize leaderboard on page load
             loadBoard();
+            
+            $.get('Login.php', { action: 'get_players' }, function(data) {
+                if (data.status === 'success') {
+                    let datalist = $('#players-list');
+                    let currentUser = localStorage.getItem('systemUser');
+                    $.each(data.players, function(index, player) {
+                        if (player !== currentUser) {
+                            datalist.append($('<option>').val(player));
+                        }
+                    });
+                }
+            }, 'json');
+
+            // Initialize Pie Chart
+            const ctx = document.getElementById('gamesPieChart').getContext('2d');
+            let myPieChart = null; 
+
+            function renderChart(stats) {
+               
+                let countTTT = stats['Tic-Tac-Toe'] || 0;
+                let countBT = stats['Bubble Territory'] || 0;
+                let countBD = stats['Bubble Drop'] || 0;
+                let totalPlays = countTTT + countBT + countBD;
+    
+                let displayData = totalPlays === 0 ? [1] : [countTTT, countBT, countBD];
+                let displayColors = totalPlays === 0 ? ['#e0ebf5'] : ['#a1c4fd', '#ffb8b8', '#c2e9fb'];
+
+                const gameData = {
+                    labels: totalPlays === 0 ? ['No Games Played Yet'] : ['Tic-Tac-Toe', 'Bubble Territory', 'Bubble Drop'],
+                    datasets: [{
+                        data: displayData,
+                        backgroundColor: displayColors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                };
+                
+                if (myPieChart) myPieChart.destroy();
+
+                myPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: gameData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (totalPlays === 0) return ' No plays yet';
+                                        return ' ' + context.label + ': ' + context.parsed + ' Plays';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            $('.custom-toggle').click(function() {
+                if (myPieChart) {
+                    let index = $(this).data('index');
+                    myPieChart.toggleDataVisibility(index);
+                    myPieChart.update();
+                    $(this).toggleClass('slice-hidden');
+                }
+            });
+
+            // Fetch actual play counts from the database!
+            $.get('Score.php', { action: 'get_game_stats' }, function(stats) {
+                renderChart(stats);
+            }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Chart data failed to load:", textStatus, errorThrown);
+                console.error("Server response:", jqXHR.responseText);
+                // Fallback rendering so the chart still shows if DB fails
+                renderChart({ 'Tic-Tac-Toe': 0, 'Bubble Territory': 0, 'Bubble Drop': 0 });
+            });
         });
     </script>
 </body>

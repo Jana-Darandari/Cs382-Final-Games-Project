@@ -15,9 +15,27 @@ body {
     background-position: center;
     background-attachment: fixed;
 }
+.header-title { font-size: 2.5rem; margin-bottom: 5px; color: #6583a2; text-align: center; font-weight: bold; text-shadow: 0 2px 4px rgba(255,255,255,0.9), 0 0 10px rgba(161, 196, 253, 0.6); }
+.subtitle { margin: 0 auto 30px auto; color: #8ab9eb; font-size: 1.2rem; text-align: center; text-decoration: none; font-weight: bold; text-shadow: none; background: rgba(255, 255, 255, 0.95); padding: 10px 25px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 2px solid #e0ebf5; }
 
-.header-title { font-size: 2.5rem; margin-bottom: 5px; color: #8fa8c8; text-align: center; font-weight: bold; }
-.subtitle { margin-bottom: 30px; color: #a1b8d4; font-size: 1.1rem; text-align: center; text-decoration: none; font-weight: bold; }
+/* Turn Indicator Box (For Player 1 / Player 2 Turn) */
+#turn, #turn-msg, #status, .turn-indicator,
+#player-turn, .player-turn, #current-player, .current-player,
+#message, #game-message, #turnInfo, #turn-text {
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb) !important;
+    color: #ffffff !important;
+    padding: 8px 25px !important;
+    border-radius: 30px !important;
+    font-size: 1.25rem !important;
+    font-weight: bold !important;
+    display: inline-block !important;
+    margin: 10px auto 20px auto !important;
+    border: none !important;
+    box-shadow: 0 6px 15px rgba(161, 196, 253, 0.4) !important;
+    text-align: center !important;
+    letter-spacing: 1px !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
 
 /* Dashboard UI */
 .login-bar {
@@ -32,7 +50,7 @@ body {
 .login-input:focus { border-color: #a1c4fd; }
 
 #active-session { margin-bottom: 20px; text-align: center; }
-#welcome-msg { font-size: 1.2rem; font-weight: bold; color: #8fa8c8; }
+#welcome-msg { font-size: 1.3rem; font-weight: bold; color: #1c3550; letter-spacing: 0.5px; background: rgba(255, 255, 255, 0.95); padding: 10px 25px; border-radius: 30px; display: inline-block; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); border: 2px solid #a1c4fd; }
 
 /* Game Cards */
 .hub-grid { display: grid; grid-template-columns: repeat(3, 250px); gap: 25px; }
@@ -43,7 +61,7 @@ body {
 }
 .game-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(161, 196, 253, 0.2); }
 .game-icon { font-size: 4rem; margin-bottom: 15px; }
-.game-title { font-size: 1.4rem; font-weight: bold; color: #8fa8c8; }
+.game-title { font-size: 1.4rem; font-weight: bold; color: #1c3550; }
 
 /* Leaderboard Table */
 .leaderboard-container {
@@ -53,7 +71,7 @@ body {
 .leaderboard-title { font-size: 1.8rem; color: #ffb8b8; margin-bottom: 15px; text-align: center; font-weight: bold; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0ebf5; }
-th { color: #a1c4fd; font-size: 1.1rem; }
+th { color: #1c3550; font-size: 1.1rem; }
 td { font-weight: bold; }
 
 /* Reusable Button */
@@ -65,3 +83,111 @@ td { font-weight: bold; }
     transition: transform 0.1s;
 }
 .btn:active { transform: scale(0.95); }
+
+/* Chart Section */
+.chart-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    margin-top: 40px;
+    width: 600px;
+    box-sizing: border-box;
+}
+.pie-chart-container {
+    width: 250px;
+    height: 250px;
+    position: relative;
+    order: 1;
+}
+.chart-legend {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    order: 2;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: #5a738e;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+.legend-item.game-link:hover {
+    color: #a1c4fd;
+    transform: translateX(5px);
+}
+.legend-color {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+/* Authentication & Modal Box */
+.auth-box {
+    background: #ffffff; padding: 25px 30px; border-radius: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 15px; width: 320px;
+}
+.auth-input {
+    width: 100%; padding: 12px 15px; border: 2px solid #e0ebf5; border-radius: 20px; outline: none;
+    color: #5a738e; font-weight: bold; font-family: inherit; box-sizing: border-box;
+}
+.auth-input:focus { border-color: #a1c4fd; }
+.auth-btn { width: 100%; }
+.signup-link { font-size: 0.95rem; font-weight: bold; margin-top: 5px; }
+.signup-link a { color: #a1c4fd; text-decoration: none; }
+.signup-link a:hover { text-decoration: underline; }
+
+.modal {
+    display: flex; position: fixed; z-index: 1000; left: 0; top: 0;
+    width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);
+    align-items: center; justify-content: center; backdrop-filter: blur(3px);
+}
+.modal-content {
+    background: #ffffff; padding: 40px; border-radius: 30px; width: 350px; text-align: center;
+    position: relative; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+.close-btn {
+    position: absolute; top: 15px; right: 20px; font-size: 1.8rem;
+    color: #a1b8d4; cursor: pointer; font-weight: bold; line-height: 1;
+}
+.close-btn:hover { color: #ffb8b8; }
+
+/* --- Profile / Dashboard UI (UPDATED: Larger Size) --- */
+.dashboard-container {
+    max-width: 600px; 
+    margin: 60px auto; 
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 50px 40px; 
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); 
+    text-align: left;
+}
+
+.info-group { 
+    margin-bottom: 35px; 
+}
+
+.info-label { 
+    font-size: 1.2rem; 
+    color: #1c3550; 
+    font-weight: bold; 
+}
+
+.info-value { 
+    font-size: 1.6rem; 
+    color: #5a738e; 
+    margin-top: 8px; 
+    padding-bottom: 10px; 
+    border-bottom: 3px solid #e0ebf5; 
+}

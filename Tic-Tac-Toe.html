@@ -25,6 +25,10 @@
     <button class="btn" onclick="init()" style="margin-top:20px;">Play Again</button>
 
     <script>
+        if(localStorage.getItem('systemLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
         let p1 = localStorage.getItem('p1Name') || "P1", p2 = localStorage.getItem('p2Name') || "P2";
         let turn, active, data;
 
@@ -33,6 +37,9 @@
             turn = "X"; active = true; data = Array(9).fill("");
             $('.cell').text("").removeClass("x o");
             $('#status').text(p1 + "'s Turn (X)").css("color", "#a1c4fd");
+            
+            // Record that the game is being played in the database
+            $.post('Score.php', { action: 'increment_stat', game: 'Tic-Tac-Toe' });
         }
 
         $('.cell').click(function() {
@@ -51,7 +58,7 @@
                 setTimeout(() => { alert(winnerName + " Wins!"); }, 100); 
                 
                 // AJAX save win
-                $.post('Score.php', { action: 'save_win', winner: winnerName }); 
+                $.post('Score.php', { action: 'save_win', winner: winnerName, game: 'Tic-Tac-Toe' }); 
             } else if(!data.includes("")) {
                 $('#status').text("Draw!"); active = false;
             } else {

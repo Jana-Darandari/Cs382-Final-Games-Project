@@ -1,5 +1,6 @@
 <?php
-session_start();
+// Import our new Session class and Database
+require_once 'Session.php';
 require_once 'Database.php';
 
 class Login {
@@ -19,8 +20,9 @@ class Login {
                 return ["status" => "error", "message" => "Player 1 is not registered in the database."];
             }
 
-            $_SESSION['p1'] = $p1;
-            $_SESSION['p2'] = $p2;
+            // CLEAN OOP WAY: Start the game session!
+            Session::startGame($p1, $p2);
+            
             return ["status" => "success"];
         } finally {
             if (isset($stmt)) $stmt->close();
@@ -30,7 +32,7 @@ class Login {
 
     public function authenticateUser($username, $password) {
         $db = (new Database())->connect();
-        // Removed dob from SELECT statement
+        
         $stmt = $db->prepare("SELECT password, email FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -39,11 +41,13 @@ class Login {
         if ($res->num_rows > 0) {
             $row = $res->fetch_assoc();
             if (password_verify($password, $row['password'])) {
-                $_SESSION['user_logged_in'] = true;
-                $_SESSION['username'] = $username;
+                
+                // CLEAN OOP WAY: Log the user in!
+                Session::loginUser($username);
+                
                 return [
                     "status" => "success",
-                    "email" => $row['email'] // Removed DOB output
+                    "email" => $row['email'] 
                 ];
             }
         }
@@ -65,6 +69,7 @@ class Login {
     }
 }
 
+// API Router
 if (isset($_POST['action']) && $_POST['action'] == 'login') {
     header('Content-Type: application/json');
     $auth = new Login();

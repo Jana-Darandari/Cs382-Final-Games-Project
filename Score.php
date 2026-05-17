@@ -1,5 +1,6 @@
 <?php
-session_start();
+// Import our new Session class and Database
+require_once 'Session.php';
 require_once 'Database.php';
 
 class Score {
@@ -92,22 +93,26 @@ class Score {
 
 $score = new Score();
 
+// ==================================================================
+// SIMPLIFIED API ROUTER WITH NEW OOP SESSION SECURITY
+// ==================================================================
+
 if (isset($_POST['action']) && $_POST['action'] == 'save_win') {
     header('Content-Type: application/json');
-    if (!isset($_SESSION['p1']) && !isset($_SESSION['user_logged_in'])) {
-        echo json_encode(["status" => "error", "message" => "Unauthorized: You must be logged in to save scores."]);
-        exit;
-    }
+    
+    // Check security!
+    Session::requireAuth(); 
+    
     $game = isset($_POST['game']) ? $_POST['game'] : null;
     $score->addWin($_POST['winner'], $game);
 }
 
 if (isset($_POST['action']) && $_POST['action'] == 'increment_stat') {
     header('Content-Type: application/json');
-    if (!isset($_SESSION['p1']) && !isset($_SESSION['user_logged_in'])) {
-        echo json_encode(["status" => "error", "message" => "Unauthorized: You must be logged in to update stats."]);
-        exit;
-    }
+    
+    // Check security!
+    Session::requireAuth(); 
+    
     $score->incrementGameStat($_POST['game']);
 }
 
@@ -123,10 +128,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_game_stats') {
 
 if (isset($_POST['action']) && $_POST['action'] == 'reset_stats') {
     header('Content-Type: application/json');
-    if (!isset($_SESSION['user_logged_in'])) {
-        echo json_encode(["status" => "error", "message" => "Unauthorized: Only logged-in users can reset stats."]);
-        exit;
-    }
+    
+    // strict check: MUST be system logged in to reset stats
+    Session::requireAuth(true); 
+    
     $score->resetGameStats();
 }
 ?>

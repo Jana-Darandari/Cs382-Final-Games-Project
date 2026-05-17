@@ -5,10 +5,12 @@
     <title>Bubble Territory</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
     <style>
         .scoreboard { font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; background: #fff; padding: 10px 30px; border-radius: 50px; }
         
-        /* The CSS Grid holding our 7x7 City Map */
+        /* CSS Grid holding 7x7 */
         .board { 
             display: grid; 
             grid-template-columns: 15px 70px 15px 70px 15px 70px 15px; 
@@ -31,6 +33,9 @@
         #status { margin-top: 25px; font-size: 1.5rem; font-weight: bold; height: 35px; }
     </style>
 </head>
+
+
+
 <body>
     
     <div class="header-title">Bubble Territory</div>
@@ -46,7 +51,7 @@
     <button class="btn" onclick="init()" style="margin-top:20px;">Play Again</button>
 
     <script>
-        // Check if logged in
+        // Check logged in
         if(localStorage.getItem('systemLoggedIn') !== 'true') {
             window.location.href = 'login.php';
         }
@@ -59,9 +64,9 @@
         let boxes;  
         let scores; 
 
-        // ---------------------------------------------------------
-        // FUNCTION 1: BUILD THE BOARD (THE "CITY MAP" CONCEPT)
-        // ---------------------------------------------------------
+
+
+        // bilding the board
         function init() {
             
             $('#board').empty(); 
@@ -76,39 +81,34 @@
             $('#s2').text('0');
             $('#status').text(p1 + "'s Turn").css("color", "#a1c4fd");
             
+
             $.post('Score.php', { action: 'increment_stat', game: 'Bubble Territory' });
             
-            // Loop to create a 7x7 grid (Coordinates X and Y)
+            // create 7x7 grid 
             for (let row = 0; row < 7; row++) {
                 for (let col = 0; col < 7; col++) {
                     
-                    // Give every piece a coordinate ID (Example: "c-1-1")
+                    // Give ID like : "c-1-1"
                     let el = $('<div id="c-' + row + '-' + col + '"></div>');
                     
-                    // SIMPLIFICATION: Create easy-to-read English variables
-                    // Even numbers are 0, 2, 4, 6. Odd numbers are 1, 3, 5.
                     let isRowEven = (row % 2 === 0);
                     let isColEven = (col % 2 === 0);
                     
-                    // Using our "City Map" logic to place the right pieces:
                     
                     if (isRowEven && isColEven) {
-                        // Both are Even = This is an Intersection (Dot)
                         el.addClass('dot'); 
                         
                     } else if (isRowEven && !isColEven) {
-                        // Row is Even, Col is Odd = This is a Horizontal Road (Line)
                         el.addClass('line h'); 
                         
                     } else if (!isRowEven && isColEven) {
-                        // Row is Odd, Col is Even = This is a Vertical Road (Line)
                         el.addClass('line v');
                         
                     } else { 
-                        // Both are Odd = This is a Building (An Empty Box to capture!)
+                        // Empty Box 
                         el.addClass('box'); 
                         
-                        // Save the building's coordinates so we can check it later
+                        // Save the building's coordinates to check it later
                         boxes.push({ id: 'c-' + row + '-' + col, r: row, c: col }); 
                     }
                     
@@ -117,9 +117,14 @@
             }
         }
 
-        // ---------------------------------------------------------
-        // FUNCTION 2: CLICKING A LINE & CHECKING FOR A WIN
-        // ---------------------------------------------------------
+        
+        
+
+
+
+
+
+
         $(document).on('click', '.line:not(.active)', function() {
             
             if (!active) return;
@@ -127,53 +132,52 @@
             let turnClass = 'p' + turn;
             $(this).addClass('active ' + turnClass); 
             
+
             let madeABox = false;
             
-            // Loop through our list of 9 "Buildings" (Boxes)
+            // Check each building to see if it's surrounded by active roads
             boxes.forEach(function(box) {
                 
                 let currentBuilding = $('#' + box.id); 
                 
-                // If this building is already colored in, skip it!
+                // If its already colored in, skip it
                 if (currentBuilding.hasClass('p1') || currentBuilding.hasClass('p2')) {
                     return;
                 }
                 
-                // THE "MAGIC MATH" EXPLANATION:
-                // To see if a box is surrounded, we take its coordinates
-                // and just Add or Subtract 1 to look at the roads next to it!
-                
+
+
+                // To see if a box is surrounded
                 let bRow = box.r;
                 let bCol = box.c;
                 
-                // Look 1 row UP
+                // Look 1 row UP ,DOWN , Left , Right
                 let topRoadId = '#c-' + (bRow - 1) + '-' + bCol;
-                
-                // Look 1 row DOWN
+
                 let bottomRoadId = '#c-' + (bRow + 1) + '-' + bCol;
-                
-                // Look 1 column LEFT
+
                 let leftRoadId = '#c-' + bRow + '-' + (bCol - 1);
-                
-                // Look 1 column RIGHT
+
                 let rightRoadId = '#c-' + bRow + '-' + (bCol + 1);
 
-                // Check if all 4 surrounding roads have been clicked ('active')
+
+
+                // Check if all 4 surrounding is clicked 
                 let topClicked = $(topRoadId).hasClass('active');
                 let bottomClicked = $(bottomRoadId).hasClass('active');
                 let leftClicked = $(leftRoadId).hasClass('active');
                 let rightClicked = $(rightRoadId).hasClass('active');
 
-                // If all 4 roads are clicked, the player captures the building!
+
+
                 if (topClicked && bottomClicked && leftClicked && rightClicked) {
                     
                     currentBuilding.addClass(turnClass); 
                     scores[turn]++; 
-                    madeABox = true; // Grants an extra turn!
+                    madeABox = true;        //extra turn
                 }
             });
             
-            // Switch turns if they didn't score
             if (!madeABox) {
                 if (turn === 1) { turn = 2; }
                 else { turn = 1; }
@@ -182,7 +186,13 @@
             $('#s1').text(scores[1]); 
             $('#s2').text(scores[2]);
             
-            // If all 9 buildings are captured, the game ends
+
+
+
+
+
+
+            // If all 9 
             if (scores[1] + scores[2] === 9) {
                 
                 active = false;
@@ -194,11 +204,13 @@
                 $('#status').text(winner + " Wins!");
                 setTimeout(() => { alert(winner + " Wins!"); }, 100); 
                 
-                // Save the score to the database
+
+
+                // Save score to database
                 $.post('Score.php', { action: 'save_win', winner: winner, game: 'Bubble Territory' });
                 
             } else { 
-                // Update turn text
+                
                 if (turn === 1) {
                     $('#status').text(p1 + "'s Turn").css("color", "#a1c4fd");
                 } else {

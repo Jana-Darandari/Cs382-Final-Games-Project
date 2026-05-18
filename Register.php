@@ -9,6 +9,11 @@ class Register {
             return ["status" => "error", "message" => "Missing required fields."];
         }
 
+        // 🧱 THE BRICK WALL: PHP strictly checks the username format!
+        if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]{2,14}$/', $username)) {
+            return ["status" => "error", "message" => "Username must start with a letter, be 3-15 characters long, and contain no spaces."];
+        }
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return ["status" => "error", "message" => "Invalid email format."];
         }
@@ -49,6 +54,7 @@ class Register {
     }
 }
 
+// API ROUTER
 if (isset($_POST['action']) && $_POST['action'] == 'register') {
     header('Content-Type: application/json');
     $reg = new Register();
